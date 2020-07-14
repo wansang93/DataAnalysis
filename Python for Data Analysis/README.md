@@ -6,3 +6,6 @@
 
 [book link](https://bedford-computing.co.uk/learning/wp-content/uploads/2015/10/Python-for-Data-Analysis.pdf)
 
+[github link](https://github.com/wesm/pydata-book)
+
+
