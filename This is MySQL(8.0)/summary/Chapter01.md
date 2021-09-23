@@ -2,13 +2,14 @@
 
 ## 01-00 Orientation
 
-### 이 강의는 ...  
+### 이 강의는?
 
 MySQL or 데이터베이스를 처음 공부하는 사용자
 초보자 -> 중급자로 올리는 개념  
 추가적으로 PHP 기본, MySQL과 연동, Python, 공간데이터베이스를 배움
 
 권장 실습 사항
+
 - Intel Core 2세대 이후, RAM 8GB 이상  
 - 내장 SSD 20GB 이상 여유
 
@@ -49,4 +50,4 @@ MySQL, MariaDB, PostgreSQL, Oracle, SQL Server, DB2, Access, SQLite 가 있다.
 
 -> 표준 만들자! 표준 SQL 생김
 
-## 나머지는 다 알아서 패스!
+## 나머지는 다 알아서 패스~
