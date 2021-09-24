@@ -40,12 +40,13 @@ MySQL Workbench를 쓰면 vscode처럼 손쉽게 DB 관리 가능, 다양한 기
 
 ## 05-02 MySQL Workbench 사용법 - 쿼리창
 
-1. 쿼리 실행: `Ctrl` + `Shift` + `Enter`
-2. Fomatting: `Ctrl` + `B`
-3. 주석: `Ctrl` + `/`
-4. Limit to 1000 rows 를 바꿔주면 많이 볼 수 있음
-5. `Edit` -> `Preferences`: 다양한 설정 가능(대문자, 글씨 크기 등)
-6. 검색 후 Filter와 저장 가능
+1. 전체 쿼리 실행: `Ctrl` + `Shift` + `Enter`
+2. 커서 선택 쿼리 실행: `Ctrl` + `Enter`
+3. Fomatting: `Ctrl` + `B`
+4. 주석: `Ctrl` + `/`
+5. Limit to 1000 rows 를 바꿔주면 많이 볼 수 있음
+6. `Edit` -> `Preferences`: 다양한 설정 가능(대문자, 글씨 크기 등)
+7. 검색 후 Filter와 저장 가능
 
 ## 05-03 외부 MySQL 서버 관리 - Linux 서버
 
