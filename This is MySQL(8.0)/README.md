@@ -2,6 +2,7 @@
 
 - 2020-11-09 (Finish Chapter01)
 - 2021-09-15 ~ 17 (Finish Chapter02~04)
+- 2021-09-23 ~ 27 (Finish Chapter05~06)
 
 강의 링크 -> <https://www.youtube.com/playlist?list=PLVsNizTWUw7Hox7NMhenT-bulldCp9HP9>
 
@@ -24,12 +25,12 @@
 - [Chapter 04 데이터베이스 모델링](./summary/Chapter04.md)
   - 04-01 데이터베이스 모델링 개념
   - 04-02 데이터베이스 모델링 툴 실습
-- ~~[Chapter 05 데이터베이스 모델링](./summary/Chapter05.md)~~
+- [Chapter 05 데이터베이스 모델링](./summary/Chapter05.md)
   - 05-01 MySQL Workbench 사용법 - 관리툴
   - 05-02 MySQL Workbench 사용법 - 쿼리창
   - 05-03 외부 MySQL 서버 관리 - Linux 서버g
   - 05-04 사용자 관리
-- ~~[Chapter 06 SQL기본](./summary/Chapter06.md)~~
+- [Chapter 06 SQL기본](./summary/Chapter06.md)
   - 06-01 SELECT FROM 문
   - 06-02 샘플데이터베이스(sqlDB)생성
   - 06-03 WHERE 절

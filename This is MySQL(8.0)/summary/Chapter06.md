@@ -240,3 +240,188 @@ SELECT num, groupname, SUM(price*amount) FROM buytbl GROUP BY groupname, num WIT
    사용자 권한 부여(GRANT/REVOKE/DENY)
 
 ## 06-05 Insert,Update,Delete 및 CTE
+
+### INSERT문
+
+형식
+
+```sql
+INSERT [INTO] 테이블[(열1, 열2, ...)] VALUES (값1, 값2, ...)
+```
+
+예시
+
+```sql
+USE sqldb;
+CREATE TABLE testtbl(id int, username char(3), age int);
+
+-- 모든 값을 다 넣을 때
+INSERT INTO testbl VALUES (1, '홍길동', 25);
+
+-- 특정 값만 넣을 때
+INSERT INTO testtbl(id, username) VALUES (2, '설현'); 
+
+-- 순서를 바꿀 때
+INSERT INTO testtbl(username, id, age) VALUES ('삼이', 26, 3); 
+```
+
+### AUTO_INCREMENT
+
+테이블을 만들 때 해당 값을 자동으로 생성하게 해줌
+
+반드시 `PRIMARY KEY` or `UNIQUE` 값을 지정해야 하고 숫자 형식만 사용 가능
+
+```sql
+USE sqldb;
+CREATE TABLE testtbl2 (
+    -- 자동완성 생성
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username CHAR(3),
+    age INT
+);
+insert into testtbl2 values (null, '지민', 25);
+insert into testtbl2 values (null, '유나', 22);
+insert into testtbl2 values (null, '유경', 21);
+-- 1부터 1씩 증가하는 모습
+SELECT * FROM testtbl2;
+
+-- 킷값을 1000부터 3씩 증가하려면
+CREATE TABLE testtbl3 (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username CHAR(3),
+    age INT
+);
+
+-- 자동생성 1000으로 설정
+ALTER TABLE testtbl3 AUTO_INCREMENT=1000;
+-- 증감을 3으로 설정
+SET @@auto_increment_increment=3;
+INSERT INTO testtbl3 VALUES(NULL, '나연', 20);
+INSERT INTO testtbl3 VALUES(NULL, '정연', 18);
+INSERT INTO testtbl3 VALUES(NULL, '모모', 19);
+SELECT * FROM testtbl3;
+```
+
+### 대량의 샘플 데이터 생성
+
+```sql
+USE sqldb;
+CREATE TABLE testtbl4 (
+    id INT,
+    fname VARCHAR(50),
+    lname VARCHAR(50)
+);
+INSERT INTO testtbl4 SELECT emp_no, first_name, last_name FROM employees.employees;
+
+-- 빠르게 만들기
+CREATE TABLE testtbl5 (SELECT emp_no, first_name, last_name FROM employees.employees);
+```
+
+### 조건부 데이터 입력
+
+키가 중복된 경우 에러가 발생합니다. 그 경우를 방지하기 위해 다음과 같이 사용합니다.
+
+```sql
+-- 에러가 나면 무시하고 넘어감
+INSERT IGNORE INTO 테이블이름 VALUES('값1', '값2', '값3');
+
+-- 중복이 발생하면 ON DUPLICATE 실행
+-- 중복이 발생하지 않으면 VALUE로 실행
+INSERT INTO 테이블이름 VALUES('값1', '값2', '값3')
+ON DUPLICATE KEY UPDATE 열2='값2', 열3='값3';
+```
+
+### 데이터의 수정: Update
+
+기본 형식
+
+```sql
+UPDATE 테이블이름
+SET 열1='값1', 열2='값2', ...
+WHERE 조건;
+```
+
+예시1
+
+```sql
+UPDATE testtbl4 SET lname = '없음' WHERE fname = 'Kyoichi';
+```
+
+업데이트 중에 **WHERE 절을 빼버리면 전체의 lname이 없음**으로 바뀌므로 **주의**해야합니다!
+
+예시2
+
+```sql
+USE sqldb;
+SHOW TABLES;
+SELECT * FROM buytbl;
+-- 가격이 모두 1.5배 인상되었으면?
+UPDATE buytbl SET price = price * 1.5;
+SELECT * FROM buytbl;
+```
+
+### 데이터의 삭제: DELETE FROM
+
+기본 형식
+
+```sql
+DELETE FROM 테이블이름
+WHERE 조건;
+```
+
+```sql
+DELETE FROM testtbl4 WHERE fname='Aamer';
+-- 상위 5개만 삭제
+DELETE FROM testtbl4 WHERE fname='Aamer' LIMIT 5;
+
+-- 대용량 삭제
+DELETE FROM bigtbl1;
+DROP TABLE bigtbl2;
+TRUNCATE TABLE bigtbl3;
+-- DELETE FROM: 한행씩 모두 삭제, 테이블은 남아있음
+-- DROP TABLE: 테이블 자체를 삭제
+-- TRUNCATE TABLE: 테이블 남기고 모든 행 삭제
+-- 빠른 순위 DROP > TRUNCATE > DELETE
+```
+
+### WITH절과 CTE
+
+CTE(Common Table Expression)란?
+
+SELECT, INSERT, UPDATE, DELETE 또는 CREATE VIEW 문 하나의 실행 범위 내에서 정의되는 임시 결과 집합
+
+기본 형식
+
+```sql
+-- CTE 생성
+WITH CTE_테이블이름(열 이름)
+AS
+(
+    <쿼리문>
+)
+-- 사용법
+SELECT 열 이름 FROM CTE_테이블이름;
+
+-- 사실은 한번에 실행됨!
+```
+
+기존에 SELECT로 불러온 데이터들이 하나의 TABLE 처럼 보이기 때문에 이것을 바로 테이블처럼 사용하기 위해 만든 느낌으로 이해!
+
+SELECT 문으로 만든 결과
+
+```sql
+USE sqlDB;
+SELECT userid AS 'userid', SUM(price*amount) AS 'total'
+FROM buytbl GROUP BY userid;
+```
+
+그 결과를 CTE 테이블로 변환
+
+```sql
+WITH abc(userid, total)
+AS
+(SELECT userid, SUM(price*amount)
+FROM buytbl GROUP BY userid)
+-- 결과
+SELECT * FROM abc ORDER BY total DESC;
+```
