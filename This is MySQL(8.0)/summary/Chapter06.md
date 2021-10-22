@@ -125,9 +125,11 @@ SELECT name, height FROM usertbl WHERE name LIKE '_종신';
 SELECT name, height FROM usertbl WHERE height > (SELECT height FROM usertbl WHERE Name = '김경호');
 
 -- SubQuery가 2건인 경우
-SELECT height FROM usertbl WHERE addr = '경남'; 
+SELECT height FROM usertbl WHERE addr = '경남';
+
 -- ANY 사용(조건 아무거나 만족)
 SELECT name, height FROM usertbl WHERE height > ANY (SELECT height FROM usertbl WHERE addr = '경남');
+
 -- ALL 사용(조건 모두 만족)
 SELECT name, height FROM usertbl WHERE height > ALL (SELECT height FROM usertbl WHERE addr = '경남');
 

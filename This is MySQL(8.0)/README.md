@@ -36,7 +36,7 @@
   - 06-03 WHERE 절
   - 06-04 Group By, Having절
   - 06-05 Insert,Update,Delete 및 CTE
-- ~~[Chapter 07 SQL고급](./summary/Chapter07.md)~~
+- [Chapter 07 SQL고급](./summary/Chapter07.md)
   - 07-01 데이터 형식, 변수
   - 07-02 데이터형 변환, 내장 함수
   - 07-03 영화사이트(대용량 데이터) 구축 실습
@@ -65,7 +65,7 @@
   - 10-04 트리거 임시 테이블, 중첩 트리거
 - ~~[Chapter 11 전체 텍스트검색과 파티션](./summary/Chapter11.md)~~
   - 11-01 전체 텍스트 검색 개념과 실습
-  - 11-01 파티션 개념과 실습
+  - 11-02 파티션 개념과 실습
 - ~~[Chapter 12 PHP 기본](./summary/Chapter12.md)~~
   - 12-01 웹 개발환경 구축
   - 12-02 HTML 태그, PHP 기초문법
