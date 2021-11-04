@@ -47,7 +47,7 @@ CREATE TABLE usertbl -- 회원 테이블
 ( userID  CHAR(8), -- 사용자 아이디
   name    VARCHAR(10), -- 이름
   birthYear   INT,  -- 출생년도
-  addr	  CHAR(2), -- 지역(경기,서울,경남 등으로 글자만 입력)
+  addr   CHAR(2), -- 지역(경기,서울,경남 등으로 글자만 입력)
   mobile1  CHAR(3), -- 휴대폰의국번(011, 016, 017, 018, 019, 010 등)
   mobile2  CHAR(8), -- 휴대폰의 나머지 전화번호(하이픈 제외)
   height    SMALLINT,  -- 키
@@ -70,8 +70,8 @@ CREATE TABLE usertbl
 ( userID  CHAR(8) NOT NULL PRIMARY KEY, 
   name    VARCHAR(10) NOT NULL, 
   birthYear   INT NOT NULL,  
-  addr	  CHAR(2) NOT NULL,
-  mobile1	CHAR(3) NULL, 
+  addr   CHAR(2) NOT NULL,
+  mobile1 CHAR(3) NULL, 
   mobile2   CHAR(8) NULL, 
   height    SMALLINT NULL, 
   mDate    DATE NULL 
@@ -249,7 +249,7 @@ CREATE TABLE usertbl
 ( userID  CHAR(8) PRIMARY KEY,
   name    VARCHAR(10) , 
   birthYear  INT CHECK (birthYear >= 1900 AND birthYear <= 2023),
-  mobile1	char(3) NULL, 
+  mobile1 char(3) NULL, 
   CONSTRAINT CK_name CHECK (name IS NOT NULL)  
 );
 
@@ -267,14 +267,14 @@ ALTER TABLE usertbl
 ```sql
 DROP TABLE IF EXISTS usertbl;
 CREATE TABLE usertbl 
-( userID  	CHAR(8) NOT NULL PRIMARY KEY,  
-  name    	VARCHAR(10) NOT NULL, 
-  birthYear	INT NOT NULL DEFAULT -1,
-  addr	  	CHAR(2) NOT NULL DEFAULT '서울',
-  mobile1	CHAR(3) NULL, 
-  mobile2	CHAR(8) NULL, 
-  height	SMALLINT NULL DEFAULT 170, 
-  mDate    	DATE NULL
+( userID   CHAR(8) NOT NULL PRIMARY KEY,  
+  name     VARCHAR(10) NOT NULL, 
+  birthYear INT NOT NULL DEFAULT -1,
+  addr    CHAR(2) NOT NULL DEFAULT '서울',
+  mobile1 CHAR(3) NULL, 
+  mobile2 CHAR(8) NULL, 
+  height SMALLINT NULL DEFAULT 170, 
+  mDate     DATE NULL
 );
 
 -- 이미 사용중인 Table에 DEFAULT 걸기
@@ -319,7 +319,7 @@ USE compressDB;
 -- TABLE 생성
 CREATE TABLE normalTBL( emp_no int , first_name varchar(14));
 CREATE TABLE compressTBL( emp_no int , first_name varchar(14))
-	ROW_FORMAT=COMPRESSED;
+ROW_FORMAT=COMPRESSED;
 
 -- 데이터 입력
 INSERT INTO normalTbl 
