@@ -86,6 +86,16 @@
   - 15-05 파이썬과 MySQL 연동
   - 15-06 공간데이터 조회 응용프로그램
 
+## Quick Start
+
+```sql
+SHOW DATABASES;  -- DATABASES 목록 보여주세요
+USE db_name;  -- 사용할 DB를 선택하세요
+SHOW TABLE STATUS;  -- table 상세보기로 보여주세요
+DESCRIBE table_name;  -- 해당 table의 field 타입을 보여주세요
+-- DESC table_name;
+```
+
 ## 마지막으로
 
 이런 좋은 강의를 무료로 제공해주신 한빛미디어 및 우재남선생님께 감사드립니다.😊

@@ -6,7 +6,7 @@
 
 설치 잘하면 powershell 관리자모드로 열기
 
-환경 변수 추가하기 명령어
+환경 변수 추가하기(아래는 명령어)
 
 ```powershell
 cmd
@@ -17,11 +17,13 @@ SETX PATH "C:\Program Files\MySQL\MySQL Server 8.0\bin;%PATH%"
 
 employees DB 다운로드 관련 링크 -> [https://dev.mysql.com/doc/employee/en/](https://dev.mysql.com/doc/employee/en/)
 
+Windows에서는 관련 링크에서 Github 페이지로 가서 압축파일로 다운함
+
 다운로드 후 powershell 관리자모드에서
 
 ```powershell
 cmd  # cmd창 열기
-# cd 해당디렉토리
+# ![필수] cd 다운받은 경로에서
 mysql -u root -p  # mysql 접속
 # 비밀번호 입력
 source employees.sql  # 설치
