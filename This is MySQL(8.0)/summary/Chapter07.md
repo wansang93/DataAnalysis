@@ -488,6 +488,8 @@ SELECT JSON_REMOVE(@json, '$.usertbl[0]') AS JSON_REMOVE;
 
 ### Inner Join
 
+양쪽 모두 값이 있는 경우만 합침, 한쪽만 있는 값들도 보고싶으면 Outer Join
+
 기본 형식
 
 ```sql
@@ -519,14 +521,363 @@ FROM usertbl U
 ORDER BY U.userID;
 ```
 
+학생테이블, 학생 동아리 테이블, 동아리 테이블 3개가 있을 때 2단 JOIN 방법
+
+```sql
+USE sqldb;
+CREATE TABLE stdtbl 
+( stdName    VARCHAR(10) NOT NULL PRIMARY KEY,
+  addr   CHAR(4) NOT NULL
+);
+CREATE TABLE clubtbl 
+( clubName    VARCHAR(10) NOT NULL PRIMARY KEY,
+  roomNo    CHAR(4) NOT NULL
+);
+CREATE TABLE stdclubtbl
+(  num int AUTO_INCREMENT NOT NULL PRIMARY KEY, 
+   stdName    VARCHAR(10) NOT NULL,
+   clubName    VARCHAR(10) NOT NULL,
+FOREIGN KEY(stdName) REFERENCES stdtbl(stdName),
+FOREIGN KEY(clubName) REFERENCES clubtbl(clubName)
+);
+INSERT INTO stdtbl VALUES ('김범수','경남'), ('성시경','서울'), ('조용필','경기'), ('은지원','경북'),('바비킴','서울');
+INSERT INTO clubtbl VALUES ('수영','101호'), ('바둑','102호'), ('축구','103호'), ('봉사','104호');
+INSERT INTO stdclubtbl VALUES (NULL, '김범수','바둑'), (NULL,'김범수','축구'), (NULL,'조용필','축구'), (NULL,'은지원','축구'), (NULL,'은지원','봉사'), (NULL,'바비킴','봉사');
+
+SELECT S.stdName, S.addr, SC.clubName, C.roomNo
+   FROM stdtbl S 
+      INNER JOIN stdclubtbl SC
+           ON S.stdName = SC.stdName
+      INNER JOIN clubtbl C
+           ON SC.clubName = C.clubName 
+   ORDER BY S.stdName;
+  
+SELECT C.clubName, C.roomNo, S.stdName, S.addr
+   FROM  stdtbl S
+      INNER JOIN stdclubtbl SC
+         ON SC.stdName = S.stdName
+      INNER JOIN clubtbl C
+          ON SC.clubName = C.clubName
+    ORDER BY C.clubName;
+
+SELECT C.culbName, c.roomNo, S.stdName, S.addr
+FROM stdtbl S
+INNER JOIN stdclubtbl SC
+```
+
 ## 07-06 Outer, Cross, Self Join 및 Union 등
 
 ### Outer Join
 
+조건에 만족되지 않는 행도 포함
+
+```sql
+SELECT <열 목록>
+FROM <테이블1(LEFT 테이블)>
+  <LEFT|RIGHT|FULL> OUTER JOIN <테이블2(RIGHT 테이블)>  -- 왼쪽|오른쪽|모든 테이블 전부 나와라
+    ON <조인될 조건>
+[WHERE 검색조건]
+```
+
+모든 학생에 대한 동아리 정보와 모든 동아리에 대한 학생의 정보를 보자
+
+```sql
+SELECT S.stdname, S.addr, C.clubName, C.roomNo
+FROM stdtbl S
+  LEFT OUTER JOIN stdclubtbl SC
+    ON S.stdName = SC.stdName 
+  LEFT OUTER JOIN clubtbl C
+    ON SC.clubName = C.clubName
+UNION
+SELECT S.stdname, S.addr, C.clubName, C.roomNo
+FROM stdtbl S
+  LEFT OUTER JOIN stdclubtbl SC
+    ON S.stdName = SC.stdName 
+  RIGHT OUTER JOIN clubtbl C
+    ON SC.clubName = C.clubName
+```
+
 ### Cross Join
+
+- 정의: 모든 행마다 다른 테이블의 모든 행을 Join함, Cartesian Product라고도 불림
+- 활용
+  - 의미가 없는 데이터 느낌, 굳이 모든 각각의 행끼리 CROSS를 할일이 잘 없음
+  - Sample Data나 대용량 Sample Data를 생성하고 싶을 때 가끔 사용
+  - 30만x44만건의 데이터를 조인해 1300억건의 데이터를 생성, 부하테스트 등
+
+```sql
+USE employees;
+SELECT COUNT(*) AS '데이터개수'
+FROM employees
+CROSS JOIN titles;
+-- 13억개
+```
 
 ### Self Join
 
-### Union
+- 정의: 테이블이 하나로 자신과 자신을 조인
+- 활용
+  - 조직도 같은 테이블에서 사용
+  - 직원과 상관 이름을 1:N형태로 만들어 사용
+
+우대리의 상관의 전화번호를 알고싶으면?
+
+```sql
+SELECT A.emp, B.emp, B.empTel
+FROM empTbl A
+INNER JOIN empTbl B
+ON A.manager = B.emp
+WHERE A.emp ='우대리';
+-- 010-2222-2222
+```
+
+### UNION / UNION ALL / NOT IN / IN
+
+UNION / UNION ALL
+
+- 정의: 두 쿼리의 결과를 합치는 것
+- 활용
+  - 논리적으로 다른 의미의 결과를 합치는 것은 의미가 없음, 더 나아가 때로는 에러 발생
+  - 대용량 테이블을 서로 분리했다가 조회 후 다시 합칠 때 유용
+    - ex) 평소에 월별 실적만 보다가 나중에 년도 전체 실적을 보고싶을 때
+  - UNION은 중복된 열 제거
+  - UNION ALL은 중복된 열까지 모두 출력
+
+```sql
+USE sqldb;
+SELECT stdname, addr
+FROM stdtbl
+UNION ALL
+SELECT clubname, roomno FROM clubtbl;
+```
+
+NOT IN / IN
+
+- NOT IN: 첫 번째 쿼리의 결과 중 두 번째 쿼리에 해당하는 것을 제외
+- IN: 첫 번째 쿼리의 결과 중 두 번째 쿼리에 해당하는 것만 조회
+
+사용자 전체 중에 핸드폰 번호가 **있는** 사람들을 출력
+
+```sql
+SELECT name, CONCAT(mobile1, mobile2) AS '전화번호' FROM usertbl
+WHERE name NOT IN (SELECT name FROM usertbl WHERE mobile1 IS NULL);
+```
+
+사용자 전체 중에 핸드폰 번호가 **없는** 사람들을 출력
+
+```sql
+SELECT name, CONCAT(mobile1, mobile2) AS '전화번호'
+FROM usertbl
+WHERE name
+IN (SELECT name FROM usertbl WHERE mobile1 IS NULL);
+```
 
 ## 07-07 SQL 프로그래밍
+
+SQL도 비슷한 분기, 흐름 제어, 반복 기능이 있음
+
+스토어드 프로시저, 스토어드 함수, 커서, 트리거의 기본임
+
+스토어드 프로시저는 10장에서 상세히 다시 배움
+
+```sql
+DELIMITER $$
+CREATE PROCEDURE 스토어드_프로시저이름()
+BEGIN
+-- SQL 프로그래밍 코딩
+END $$
+DELIMITER ;
+CALL 스토어드_프로시저이름();
+```
+
+### IF
+
+기본 형태
+
+```sql
+IF <부울 표현식> THEN
+-- SQL 문장들1
+ELSE
+-- SQL 문장들2
+END IF;
+```
+
+employees DB의 직원 10001번에 해당 직원이 5년이 넘었는지 확인하기
+
+```sql
+DROP PROCEDURE IF EXISTS ifProc2;
+USE employees;
+
+DELIMITER $$
+CREATE PROCEDURE ifProc2()
+BEGIN
+DECLARE hireDATE DATE; -- 입사일
+DECLARE curDATE DATE; -- 오늘
+DECLARE days INT; -- 근무한 일수
+
+SELECT hire_date INTO hireDate -- hire_date 열의 결과를 hireDATE에 대입
+    FROM employees.employees
+    WHERE emp_no = 10001;
+
+SET curDATE = CURRENT_DATE(); -- 현재 날짜
+SET days =  DATEDIFF(curDATE, hireDATE); -- 날짜의 차이, 일 단위
+
+IF (days/365) >= 5 THEN -- 5년이 지났다면
+    SELECT CONCAT('입사한지 ', days, '일이나 지났습니다. 축하합니다!');
+ELSE
+    SELECT '입사한지 ' + days + '일밖에 안되었네요. 열심히 일하세요.' ;
+END IF;
+END $$
+DELIMITER ;
+CALL ifProc2();
+```
+
+### CASE
+
+기본 형태
+
+```sql
+CASE
+  WHEN <조건1> THEN
+    <실행1>
+  WHEN <조건2> THEN
+    <실행2>
+  ELSE
+    <실행3>
+END CASE;
+```
+
+점수에 따라 학점 보여주기
+
+```sql
+DROP PROCEDURE IF EXISTS caseProc; 
+DELIMITER $$
+CREATE PROCEDURE caseProc()
+BEGIN
+  DECLARE point INT ;
+  DECLARE credit CHAR(1);
+  SET point = 77 ;
+  
+  CASE 
+  WHEN point >= 90 THEN
+    SET credit = 'A';
+  WHEN point >= 80 THEN
+    SET credit = 'B';
+  WHEN point >= 70 THEN
+    SET credit = 'C';
+  WHEN point >= 60 THEN
+    SET credit = 'D';
+  ELSE
+    SET credit = 'F';
+  END CASE;
+  SELECT CONCAT('취득점수->', point), CONCAT('학점->', credit);
+END $$
+DELIMITER ;
+CALL caseProc();
+```
+
+### WHILE/ITERATE/LEAVE
+
+`WHILE`은 반복문, `ITERATE/LEAVE`는 CONTINUE/BREAK와 비슷한 역할
+
+```sql
+DROP PROCEDURE IF EXISTS whileProc2; 
+DELIMITER $$
+CREATE PROCEDURE whileProc2()
+BEGIN
+    DECLARE i INT; -- 1에서 100까지 증가할 변수
+    DECLARE hap INT; -- 더한 값을 누적할 변수
+    SET i = 1;
+    SET hap = 0;
+
+  myWhile: WHILE (i <= 100) DO  -- While문에 label을 지정
+  IF (i%7 = 0) THEN
+    SET i = i + 1;     
+    ITERATE myWhile; -- 지정한 label문으로 가서 계속 진행
+  END IF;
+    SET hap = hap + i; 
+    IF (hap > 1000) THEN 
+    LEAVE myWhile; -- 지정한 label문을 떠남. 즉, While 종료.
+  END IF;
+    SET i = i + 1;
+  END WHILE;
+
+  SELECT hap;
+END $$
+DELIMITER ;
+CALL whileProc2();
+```
+
+### 오류 처리
+
+기본 형식
+
+```sql
+DECLARE <액션> HANDLER FOR <오류조건> <처리할_문장>;
+```
+
+- 액션: CONTINUE와 EXIT 둘 중 하나를 사용
+  - CONTINUE를 사용하면 처리할_문장이 실행
+- 오류조건: 어떤 오류를 처리할 것인지를 지정
+  - SQLSTATE상태코드.SQLSTATE.SQLEXCEPTION, SQLWARNING, NOT FOUND 등이 옴
+  - SQLSTATE상태코드: 5자리의 문자열로 구성
+  - ex) 테이블이 없는경우 -> 상태코드 '42S02', 오류코드 1146
+- 처리할_문장: 처리할 문장이 하나면 한 문장이 나오면 되고 여러개면 BEGIN~END로 묶어줌
+
+KEY 중복 에러 발생시 오류 처리하기
+
+```sql
+DROP PROCEDURE IF EXISTS errorProc2; 
+DELIMITER $$
+CREATE PROCEDURE errorProc2()
+BEGIN
+  DECLARE CONTINUE HANDLER FOR SQLEXCEPTION 
+  BEGIN
+    SHOW ERRORS; -- 오류 메시지를 보여 준다.
+    SELECT '오류가 발생했네요. 작업은 취소시켰습니다.' AS '메시지'; 
+    ROLLBACK; -- 오류 발생시 작업을 롤백시킨다.
+  END;
+  INSERT INTO usertbl VALUES('LSG', '이상구', 1988, '서울', NULL, 
+  NULL, 170, CURRENT_DATE()); -- 중복되는 아이디이므로 오류 발생
+END $$
+DELIMITER ;
+CALL errorProc2();
+```
+
+COMMIT은 작업을 완전히 확정시키는 구문, ROLLBACK은 진행중인 작업을 취소
+
+### 동적 SQL
+
+동적으로 값을 받아서 실행할 때 사용
+
+기본 형태
+
+```sql
+-- 정의
+PREPARE <실행_이름> <사용하고싶은_명령어>;
+-- 실행
+EXECUTE PREPARE <실행_이름>;
+-- 삭제
+DEALLOCATE PREPARE <실행_이름>;
+```
+
+`?`로 향후에 입력될 값을 비워놓고 EXECUTE에서 `USING`을 이용해 값을 전달 가능
+
+현재 날짜와 시간을 받아서 입력을 해보자
+
+```sql
+USE sqldb;
+DROP TABLE IF EXISTS myTable;
+CREATE TABLE myTable (id INT AUTO_INCREMENT PRIMARY KEY, mDate DATETIME);
+
+SET @curDATE = CURRENT_TIMESTAMP(); -- 현재 날짜와 시간
+
+-- `?`로 향후에 입력될 값을 비워놈
+PREPARE myQuery FROM 'INSERT INTO myTable VALUES(NULL, ?)';
+-- `USING`을 사용하여 입력될 값을 넣으면서 실행
+EXECUTE myQuery USING @curDATE;
+-- PREPARE 삭제
+DEALLOCATE PREPARE myQuery;
+-- 조회
+SELECT * FROM myTable;
+```

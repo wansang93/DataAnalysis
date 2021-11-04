@@ -3,6 +3,7 @@
 - 2020-11-09 (Finish Chapter01)
 - 2021-09-15 ~ 17 (Finish Chapter02~04)
 - 2021-09-23 ~ 27 (Finish Chapter05~06)
+- 2021-10-22 ~  (Finish Chapter07~)
 
 강의 링크 -> <https://www.youtube.com/playlist?list=PLVsNizTWUw7Hox7NMhenT-bulldCp9HP9>
 
