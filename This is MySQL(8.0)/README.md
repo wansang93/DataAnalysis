@@ -45,7 +45,7 @@
   - 07-05 조인 개념과 Inner Join
   - 07-06 Outer, Cross, Self Join 및 Union 등
   - 07-07 SQL 프로그래밍
-- ~~[Chapter 08 테이블과 뷰](./summary/Chapter08.md)~~
+- [Chapter 08 테이블과 뷰](./summary/Chapter08.md)
   - 08-01 Workbench에서 테이블 생성
   - 08-02 SQL문으로 테이블 생성
   - 08-03 제약조건(기본키, 외래키)

@@ -47,7 +47,7 @@ CREATE TABLE usertbl -- 회원 테이블
 ( userID  CHAR(8), -- 사용자 아이디
   name    VARCHAR(10), -- 이름
   birthYear   INT,  -- 출생년도
-  addr	  CHAR(2), -- 지역(경기,서울,경남 등으로 글자만 입력)
+  addr    CHAR(2), -- 지역(경기,서울,경남 등으로 글자만 입력)
   mobile1  CHAR(3), -- 휴대폰의국번(011, 016, 017, 018, 019, 010 등)
   mobile2  CHAR(8), -- 휴대폰의 나머지 전화번호(하이픈 제외)
   height    SMALLINT,  -- 키
@@ -70,8 +70,8 @@ CREATE TABLE usertbl
 ( userID  CHAR(8) NOT NULL PRIMARY KEY, 
   name    VARCHAR(10) NOT NULL, 
   birthYear   INT NOT NULL,  
-  addr	  CHAR(2) NOT NULL,
-  mobile1	CHAR(3) NULL, 
+  addr    CHAR(2) NOT NULL,
+  mobile1 CHAR(3) NULL, 
   mobile2   CHAR(8) NULL, 
   height    SMALLINT NULL, 
   mDate    DATE NULL 
@@ -249,7 +249,7 @@ CREATE TABLE usertbl
 ( userID  CHAR(8) PRIMARY KEY,
   name    VARCHAR(10) , 
   birthYear  INT CHECK (birthYear >= 1900 AND birthYear <= 2023),
-  mobile1	char(3) NULL, 
+  mobile1 char(3) NULL, 
   CONSTRAINT CK_name CHECK (name IS NOT NULL)  
 );
 
@@ -267,14 +267,14 @@ ALTER TABLE usertbl
 ```sql
 DROP TABLE IF EXISTS usertbl;
 CREATE TABLE usertbl 
-( userID  	CHAR(8) NOT NULL PRIMARY KEY,  
-  name    	VARCHAR(10) NOT NULL, 
-  birthYear	INT NOT NULL DEFAULT -1,
-  addr	  	CHAR(2) NOT NULL DEFAULT '서울',
-  mobile1	CHAR(3) NULL, 
-  mobile2	CHAR(8) NULL, 
-  height	SMALLINT NULL DEFAULT 170, 
-  mDate    	DATE NULL
+( userID    CHAR(8) NOT NULL PRIMARY KEY,  
+  name      VARCHAR(10) NOT NULL, 
+  birthYear INT NOT NULL DEFAULT -1,
+  addr      CHAR(2) NOT NULL DEFAULT '서울',
+  mobile1 CHAR(3) NULL, 
+  mobile2 CHAR(8) NULL, 
+  height  SMALLINT NULL DEFAULT 170, 
+  mDate     DATE NULL
 );
 
 -- 이미 사용중인 Table에 DEFAULT 걸기
@@ -319,7 +319,7 @@ USE compressDB;
 -- TABLE 생성
 CREATE TABLE normalTBL( emp_no int , first_name varchar(14));
 CREATE TABLE compressTBL( emp_no int , first_name varchar(14))
-	ROW_FORMAT=COMPRESSED;
+  ROW_FORMAT=COMPRESSED;
 
 -- 데이터 입력
 INSERT INTO normalTbl 
@@ -349,29 +349,229 @@ CREATE TEMPORARY TABLE [IF NOT EXISTS] 테이블이름
 
 ## 08-05 테이블 삭제, 수정 및 제약조건 전체 실습
 
+### 열의 추가
+
+```sql
+USE tabledb;
+ALTER TABLE usertbl
+  ADD Fhomepage VARCHAR(30) FIRST  -- 제일 앞에 열 추가
+  DEFAULT 'http://www.hanbit.co.kr'  -- 디폴트 값
+  NULL;  -- Null 허용
+```
+
+열을 추가하면 기본적으로 가장 뒤에 추가, 순서 변경은 가장 뒤에 `AFTER <열이름>`, `FIRST` 추가
+
+### 열의 삭제
+
+```sql
+ALTER TABLE usertbl
+  DROP COLUMN mobile1;
+```
+
+제약 조건이 걸려있으면 삭제가 안됨
+
 ### 테이블 삭제
 
 ```sql
 DROP TABLE 테이블이름;
 ```
 
-### 테이블 수정
+### 테이블 수정 
 
 ```sql
--- 열 추가
+-- 열 이름 및 데이터 형식 변경
+ALTER TABLE usertbl
+  CHANGE COLUMN name uName VARCHAR(20) NULL;
 
--- 열 삭제
+-- 기본 키 삭제
+ALTER TABLE usertbl
+  DROP PRIMARY KEY;
 -- 제약 조건이 걸려있으면 삭제 불가능
-
-
--- 제약 조건 추가 및 삭제
-
+-- 따라서 외래 키를 제거 후 기본키를 삭제해야 함
+ALTER TABLE buytbl
+  DROP FOREIGN KEY buytbl_ibfk_1;
 ```
 
 ### 전체 실습
 
 ```sql
+USE tabledb;
+DROP TABLE IF EXISTS buytbl, usertbl;
 
+-- 제약 없는 기본값
+CREATE TABLE usertbl 
+( userID  CHAR(8), 
+  name    VARCHAR(10),
+  birthYear   INT,  
+  addr    CHAR(2), 
+  mobile1 CHAR(3), 
+  mobile2   CHAR(8), 
+  height    SMALLINT, 
+  mDate    DATE 
+);
+
+-- 제약 없는 기본값, num만 자동 생성
+CREATE TABLE buytbl 
+(  num int AUTO_INCREMENT PRIMARY KEY,
+   userid  CHAR(8),
+   prodName CHAR(6),
+   groupName CHAR(4),
+   price     INT ,
+   amount   SMALLINT
+);
+
+-- 데이터 삽입
+INSERT INTO usertbl VALUES('LSG', '이승기', 1987, '서울', '011', '1111111', 182, '2008-8-8');
+-- 김범수씨 생년을 모름
+INSERT INTO usertbl VALUES('KBS', '김범수', NULL, '경남', '011', '2222222', 173, '2012-4-4');
+-- 김경호씨 생년을 잘못 입력
+INSERT INTO usertbl VALUES('KKH', '김경호', 1871, '전남', '019', '3333333', 177, '2007-7-7');
+INSERT INTO usertbl VALUES('JYP', '조용필', 1950, '경기', '011', '4444444', 166, '2009-4-4');
+INSERT INTO buytbl VALUES(NULL, 'KBS', '운동화', NULL , 30,   2);
+INSERT INTO buytbl VALUES(NULL,'KBS', '노트북', '전자', 1000, 1);
+INSERT INTO buytbl VALUES(NULL,'JYP', '모니터', '전자', 200,  1);
+-- BBK는 회원이 아님
+INSERT INTO buytbl VALUES(NULL,'BBK', '모니터', '전자', 200,  5);
+
+-- UserId로 기본키 지정하기
+ALTER TABLE usertbl
+  ADD CONSTRAINT PK_usertbl_userID
+  PRIMARY KEY (userID);
+
+-- 확인하기
+DESC usertbl;
+
+-- buytbl 테이블의 userID를 usertbl의 userID 를 참조하여 외래키로 지정
+ALTER TABLE buytbl
+  ADD CONSTRAINT FK_usertbl_buytbl
+  FOREIGN KEY (userID)
+  REFERENCES usertbl (userID);
+-- 오류 발생(기존 유저tbl에 ID는 BBK가 없기 때문에)
+
+-- 아이디가 없는데 구매한 BBK 삭제
+DELETE FROM buytbl WHERE userid = 'BBK';
+-- 외래키 재 지정(성공)
+ALTER TABLE buytbl
+  ADD CONSTRAINT FK_usertbl_buytbl
+  FOREIGN KEY (userID)
+  REFERENCES usertbl (userID);
+
+-- 오류 발생(BBK 아이디가 없어서)
+INSERT INTO buytbl VALUES(NULL,'BBK', '모니터', '전자', 200,  5);
+
+-- 외래키 지정하려면 다 삭제하고 다시 넣어야되? 불가능하자나
+-- 그럼 외래키 잠시 비활성화(0) 하고 데이터 넣고 다시 활성화(1) 하자
+SET foreign_key_checks = 0;
+INSERT INTO buytbl VALUES(NULL, 'BBK', '모니터', '전자', 200,  5);
+INSERT INTO buytbl VALUES(NULL, 'KBS', '청바지', '의류', 50,   3);
+INSERT INTO buytbl VALUES(NULL, 'BBK', '메모리', '전자', 80,  10);
+INSERT INTO buytbl VALUES(NULL, 'SSK', '책'    , '서적', 15,   5);
+INSERT INTO buytbl VALUES(NULL, 'EJW', '책'    , '서적', 15,   2);
+INSERT INTO buytbl VALUES(NULL, 'EJW', '청바지', '의류', 50,   1);
+INSERT INTO buytbl VALUES(NULL, 'BBK', '운동화', NULL   , 30,   2);
+INSERT INTO buytbl VALUES(NULL, 'EJW', '책'    , '서적', 15,   1);
+INSERT INTO buytbl VALUES(NULL, 'BBK', '운동화', NULL   , 30,   2);
+SET foreign_key_checks = 1;
+
+-- 체크 제약조건으로 범위 설정
+ALTER TABLE userTBL
+  ADD CONSTRAINT CK_birthYear
+  CHECK ( (birthYear >= 1900 AND birthYear <= 2023) AND (birthYear IS NOT NULL) );
+-- 오류 발생(1891년생이 있어서, NULL 도 있어서)
+
+-- 올바르게 고치기
+UPDATE usertbl SET birthYear=1979 WHERE userID='KBS';
+UPDATE usertbl SET birthYear=1971 WHERE userID='KKH';
+
+-- 체크 제약조건 자동으로 발동
+ALTER TABLE userTBL
+  ADD CONSTRAINT CK_birthYear
+  CHECK ( (birthYear >= 1900 AND birthYear <= 2023) AND (birthYear IS NOT NULL) );
+
+-- 체크 제약조건 발동으로 2999년 떄문에 입력이 안됨
+INSERT INTO usertbl VALUES('TKV', '태권뷔', 2999, '우주', NULL  , NULL , 186, '2023-12-12');
+
+-- 정상적으로 구성된 테이블 만들기
+INSERT INTO usertbl VALUES('SSK', '성시경', 1979, '서울', NULL  , NULL , 186, '2013-12-12');
+INSERT INTO usertbl VALUES('LJB', '임재범', 1963, '서울', '016', '6666666', 182, '2009-9-9');
+INSERT INTO usertbl VALUES('YJS', '윤종신', 1969, '경남', NULL  , NULL , 170, '2005-5-5');
+INSERT INTO usertbl VALUES('EJW', '은지원', 1972, '경북', '011', '8888888', 174, '2014-3-3');
+INSERT INTO usertbl VALUES('JKW', '조관우', 1965, '경기', '018', '9999999', 172, '2010-10-10');
+INSERT INTO usertbl VALUES('BBK', '바비킴', 1973, '서울', '010', '0000000', 176, '2013-5-5');
+
+-- ID 잘못 입력되서 바꾸려고 함
+UPDATE usertbl SET userID = 'VVK' WHERE userID='BBK';
+-- 오류 발생(PK, FK가 발동되어 있어서)
+
+-- FK 비활성화해서 바꾸면 됨
+SET foreign_key_checks = 0;
+UPDATE usertbl SET userID = 'VVK' WHERE userID='BBK';
+SET foreign_key_checks = 1;
+-- FK 활성화
+
+-- 구매와 유저 테이블 조인 -> 8건
+SELECT B.userid, U.name, B.prodName, U.addr, CONCAT(U.mobile1, U.mobile2)  AS '연락처'
+   FROM buytbl B
+     INNER JOIN usertbl U
+        ON B.userid = U.userid ;
+
+-- 구매 테이블 -> 12건
+-- 조인해서 4개가 사라진 이유는?
+SELECT COUNT(*) FROM buytbl;
+
+-- OUTER JOIN 으로 확인
+SELECT B.userid, U.name, B.prodName, U.addr, CONCAT(U.mobile1, U.mobile2) AS '연락처'
+   FROM buytbl B
+     LEFT OUTER JOIN usertbl U
+        ON B.userid = U.userid
+   ORDER BY B.userid ;
+
+-- 이름 정상으로 돌아옴
+SET foreign_key_checks = 0;
+UPDATE usertbl SET userID = 'BBK' WHERE userID='VVK';
+SET foreign_key_checks = 1;
+
+-- 원상 복귀를 위해 잠시 끊음
+ALTER TABLE buytbl
+  DROP FOREIGN KEY FK_usertbl_buytbl;
+
+-- PK가 바끼면서 FK도 바뀌게 설정
+ALTER TABLE buytbl 
+  ADD CONSTRAINT FK_usertbl_buytbl
+  FOREIGN KEY (userID)
+  REFERENCES usertbl (userID)
+  ON UPDATE CASCADE;  -- 이 부분에서 적용
+
+-- 바뀌면 따라 바뀌는지 확인
+UPDATE usertbl SET userID = 'VVK' WHERE userID='BBK';
+SELECT B.userid, U.name, B.prodName, U.addr, CONCAT(U.mobile1, U.mobile2) AS '연락처'
+   FROM buytbl B
+     INNER JOIN usertbl U
+        ON B.userid = U.userid
+  ORDER BY B.userid;
+
+-- 회원 탈퇴하면? 오류 발생!(FK가 설정되어 있어서)
+DELETE FROM usertbl WHERE userID = 'VVK';
+
+-- 다시 초기화
+ALTER TABLE buytbl
+  DROP FOREIGN KEY FK_usertbl_buytbl;
+-- 같이 삭제되게 하기
+ALTER TABLE buytbl 
+  ADD CONSTRAINT FK_usertbl_buytbl
+  FOREIGN KEY (userID)
+  REFERENCES usertbl (userID)
+  ON UPDATE CASCADE
+  ON DELETE CASCADE;  -- 이 부분 추가
+
+-- 잘 삭제됨
+DELETE FROM usertbl WHERE userID = 'VVK';
+SELECT * FROM buytbl ;
+
+-- 체크 조건 삭제는 아무 문제없이 잘 삭제됨
+ALTER TABLE usertbl
+  DROP COLUMN birthYear ;
+-- 결론: PK, FK는 삭제, 수정 시 영향을 미치기 때문에 ON CASCADE를 적절히 사용해야 함
 ```
 
 ## 08-06 뷰의 개념과 실습
