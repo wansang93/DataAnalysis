@@ -577,10 +577,174 @@ ALTER TABLE usertbl
 
 ## 08-06 뷰의 개념과 실습
 
+### 뷰
+
+뷰는 일반 사용자 입장에서 테이블과 동일
+
+장점
+- 보안의 도움이 됨
+- 복잡한 쿼리를 단순화 할 수 있음, 매번 Select문 쓸 필요 없음
+
+뷰를 만드는 방법
+
+```sql
+USE tabledb;
+CREATE VIEW v_usertbl
+AS
+SELECT userid, name, addr FROM usertbl;
+```
+
+뷰 실습
+
+```sql
+USE sqlDB;
+
+-- VIEW 생성
+CREATE VIEW v_userbuytbl
+AS
+   SELECT U.userid AS 'USER ID', U.name AS 'USER NAME', B.prodName AS 'PRODUCT NAME', 
+		U.addr, CONCAT(U.mobile1, U.mobile2) AS 'MOBILE PHONE'
+      FROM usertbl U
+	INNER JOIN buytbl B
+	 ON U.userid = B.userid;
+
+-- VIEW 조회
+SELECT `USER ID`, `USER NAME` FROM v_userbuytbl; -- 주의! 백틱을 사용한다.
+
+-- VIEW 수정
+ALTER VIEW v_userbuytbl
+AS
+   SELECT U.userid AS '사용자 아이디', U.name AS '이름', B.prodName AS '제품 이름', 
+		U.addr, CONCAT(U.mobile1, U.mobile2)  AS '전화 번호'
+      FROM usertbl U
+          INNER JOIN buytbl B
+             ON U.userid = B.userid ;
+
+-- 한글 이름은 추천 안함
+SELECT `이름`,`전화 번호` FROM v_userbuytbl;
+
+-- VIEW 삭제
+DROP VIEW v_userbuytbl;
+
+-- 기존에 VIEW가 존재하면 덮어씀(오류를 더 줄임)
+USE sqlDB;
+CREATE OR REPLACE VIEW v_usertbl
+AS
+	SELECT userid, name, addr FROM usertbl;
+
+-- VIEW 테이블 조회
+DESCRIBE v_usertbl;
+
+-- VIEW를 어떻게 생성했는지 쿼리 자세히 보기
+SHOW CREATE VIEW v_usertbl;
+
+SELECT * FROM v_usertbl;
+-- VIEW에서 값 바꾸기
+UPDATE v_usertbl SET addr = '부산' WHERE userid='JKW' ;
+-- 변경 확인
+SELECT * FROM v_usertbl;
+
+-- 오류 발생 -> 원본 Table에 특정 칼럼이 NOT NULL이 설정되어 있기 때문에
+INSERT INTO v_usertbl(userid, name, addr) VALUES('KBM','김병만','충북') ;
+-- 해결방법: 원본 테이블의 칼럼들을 NOT NULL 설정 해제
+-- 해결방법의 문제점: 데이터 원본의 구조를 바꾸기 때문에 비추천
+-- 왠만하면 데이터 삽입은 불가능!
+
+-- 총액에 대한 그룹화
+CREATE VIEW v_sum
+AS
+	SELECT userid AS 'userid', SUM(price*amount) AS 'total'  
+	   FROM buytbl GROUP BY userid;
+
+SELECT * FROM v_sum;
+
+-- VIEWS의 스키마 보기
+SELECT * FROM INFORMATION_SCHEMA.VIEWS
+     WHERE TABLE_SCHEMA = 'sqldb' AND TABLE_NAME = 'v_sum';
+-- IsUpdatable이 No로 확인
+
+-- 177이상인 사람의 VIEW 생성
+CREATE VIEW v_height177
+AS
+	SELECT * FROM usertbl WHERE height >= 177 ;
+
+-- VIEW 조회
+SELECT * FROM v_height177 ;
+
+-- VIEW에서 177이하인 사람 삭제
+DELETE FROM v_height177 WHERE height < 177 ;
+-- VIEW에 변화가 없음
+
+-- VIEW에서 177이하인 사람 삽입
+INSERT INTO v_height177 VALUES('KBM', '김병만', 1977 , '경기', '010', '5555555', 158, '2023-01-01') ;
+-- VIEW에 변화가 없음(조건이 만족하지 않아서 자동으로 입력 안함)
+
+-- CHECK OPTION을 확인하고 VIEW에 넣으세요
+ALTER VIEW v_height177
+AS
+	SELECT * FROM usertbl WHERE height >= 177
+	    WITH CHECK OPTION ;
+
+-- 155인 사람의 키를 넣으면 
+INSERT INTO v_height177 VALUES('WDT', '서장훈', 2006 , '서울', '010', '3333333', 155, '2023-3-3') ;
+
+-- 2개 이상의 테이블을 합친 뷰를 복합뷰라고 함
+CREATE VIEW v_userbuytbl
+AS
+  SELECT U.userid, U.name, B.prodName, U.addr, CONCAT(U.mobile1, U.mobile2) AS mobile
+   FROM usertbl U
+      INNER JOIN buytbl B
+         ON U.userid = B.userid ;
+
+-- 복합뷰는 삽입 불가
+INSERT INTO v_userbuytbl VALUES('PKL','박경리','운동화','경기','00000000000','2023-2-2');
+
+-- VIEW가 살아있어도 원본 테이블을 지울 수 있음
+DROP TABLE IF EXISTS buytbl, usertbl;
+
+-- 원본 테이블을 지우면 VIEW는 조회가 안됨
+SELECT * FROM v_userbuytbl;
+
+-- VIEW 테이블들에 대한 정보 보기
+CHECK TABLE v_userbuytbl;
+```
+
 ## 08-07 테이블스페이스
+
+테이블 스페이스는 별로 신경쓰지 않아도 되지만 대용량의 데이터를 다룰 때는 성능 향상을 위해 테이블스페이스에 대한 설정을 하는 것이 좋음
+
+테이블스페이스란?
+- 테이블이 실제로 저장되는 물리적인 공간을 말함(데이터베이스는 테이블이 저장되는 논리적 공간을 말함)
+- 테이블을 생성할 때 별도의 테이블스페이스를 지정하지 않아서 시스템 테이블스페이스에 테이블이 저장됨
+- 대용량 DB는 테이블스페이스를 따로 지정해서 관리하는게 좋음
 
 ### 테이블 데이터베이스
 
 ```sql
+-- 테이블 당 하나의 파일 생성(기본값: ON)
+SHOW VARIABLES LIKE 'innodb_file_per_table';
 
+-- DB의 데이터 파일 경로
+SHOW VARIABLES LIKE 'innodb_data_file_path';
+-- ibdata1:12M:autoextend(데이터:데이터용량:자동확장)
+-- 사실 MySQL Server 8.0\Data에 ibdata1가 있음
+
+-- 3개의 TABLESPACE 만들기(확장명은 반드시 .idb로 할 것!)
+CREATE TABLESPACE ts_a ADD DATAFILE 'ts_a.ibd';
+CREATE TABLESPACE ts_b ADD DATAFILE 'ts_b.ibd';
+CREATE TABLESPACE ts_c ADD DATAFILE 'ts_c.ibd';
+
+-- sqldb 사용
+USE sqldb;
+CREATE TABLE table_a (id INT) TABLESPACE ts_a;
+
+CREATE TABLE table_b (id INT);
+ALTER TABLE table_b TABLESPACE ts_b;
+
+CREATE TABLE table_c (SELECT * FROM employees.salaries);
+ALTER TABLE table_c TABLESPACE ts_c;
+-- 만약에 속도 문제가 생기면 아래와 같이 수행해야 함
+-- Workbench에서 DBMS 연결의 타임아웃 시간이 설정되어서 시간이 오래걸리면 자동으로 끊음
 ```
+
+속도 문제 해결법: `<Edit>` -> `<Preferences>` -> `<MySQL Session>` 에서 DBMS connection timeout을 0(무제한)으로 변경해야 함
