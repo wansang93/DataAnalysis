@@ -3,7 +3,7 @@
 - 2020-11-09 (Finish Chapter01)
 - 2021-09-15 ~ 17 (Finish Chapter02~04)
 - 2021-09-23 ~ 27 (Finish Chapter05~06)
-- 2021-10-22 ~  (Finish Chapter07~)
+- 2021-10-22 ~ 2021-11- (Finish Chapter07~11)
 
 강의 링크 -> <https://www.youtube.com/playlist?list=PLVsNizTWUw7Hox7NMhenT-bulldCp9HP9>
 
@@ -64,7 +64,7 @@
   - 10-02 스토어드 함수, 커서
   - 10-03 트리거 개념과 실습
   - 10-04 트리거 임시 테이블, 중첩 트리거
-- ~~[Chapter 11 전체 텍스트검색과 파티션](./summary/Chapter11.md)~~
+- [Chapter 11 전체 텍스트검색과 파티션](./summary/Chapter11.md)
   - 11-01 전체 텍스트 검색 개념과 실습
   - 11-02 파티션 개념과 실습
 - ~~[Chapter 12 PHP 기본](./summary/Chapter12.md)~~
@@ -88,6 +88,8 @@
   - 15-06 공간데이터 조회 응용프로그램
 
 ## Quick Start
+
+### DB를 시작하자마자 DB와 Table 조회하기
 
 ```sql
 SHOW DATABASES;  -- DATABASES 목록 보여주세요
