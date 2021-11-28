@@ -24,7 +24,7 @@ CREATE TABLE 테이블이름 (
     ...
     열 이름 데이터형식,
     ...,
-    FULL TEXT 인덱스이름 (열 이름)
+    FULLTEXT 인덱스이름 (열 이름)
 );
 
 -- 형식 2
@@ -32,7 +32,7 @@ CREATE TABLE 테이블이름 (
     ...
     열 이름 데이터형식,
     ...,
-    FULL TEXT 인덱스이름 (열 이름)
+    FULLTEXT 인덱스이름 (열 이름)
 );
 ALTER TABLE 테이블이름
     ADD FULLTEXT(열 이름);
@@ -42,7 +42,7 @@ CREATE TABLE 테이블이름 (
     ...
     열 이름 데이터형식,
     ...,
-    FULL TEXT 인덱스이름 (열 이름)
+    FULLTEXT 인덱스이름 (열 이름)
 );
 CREATE FULLTEXT INDEX 인덱스이름
 ON 테이블이름 (열 이름);
@@ -54,7 +54,7 @@ DROP INDEX FULLTEXT(열 이름);
 
 - 중지 단어
   - 무시할 만한 단어(아주, 모두, 꼭 등)들은 아에 전체 텍스트 인텍스로 생성하지 않게 함
-  - INFORMATION_SCHEMA.INNODB_FT_DEFAULTS_STOPWORD 테이블에 36개(a, about, an ...)가 들어가있음
+  - `INFORMATION_SCHEMA.INNODB_FT_DEFAULTS_STOPWORD` 테이블에 기본 36개(a, about, an ...)가 들어가 있음
 
 ### 전체 텍스트 검색을 위한 쿼리
 
@@ -214,3 +214,111 @@ SELECT word, doc_count, doc_id, position
 ```
 
 ## 11-02 파티션 개념과 실습
+
+### 파티션
+
+- 대량의 테이블을 물리적으로 여러 개의 테이블로 쪼개는 것
+- 테이블의 내용을 내부적으로 분할함
+- 분산 저장을 해 빠르고 효율적으로 검색 가능
+- 분할할 기준을 잘 정해서 파티셔닝을 해야 함
+- MySQL은 8192개 파티션 지원(기본 5000), `open_file_limit(5000)` 으로 지정되어 있음
+
+범위로 파티션을 나눌 수 있음
+
+```sql
+PARTITION BY LIST COLUMNS(addr) (
+  PARTITION part1 VALUES IN ('서울', '경기'),
+  PARTITION part1 VALUES IN ('충북', '충남'),
+  PARTITION part1 VALUES IN ('경북', '경남'),
+  PARTITION part1 VALUES IN ('전북', '전남'),
+  PARTITION part1 VALUES IN ('강원', '제주')
+);
+```
+
+실습
+
+```sql
+
+CREATE DATABASE IF NOT EXISTS partDB;
+USE partDB;
+DROP TABLE IF EXISTS partTBL;
+
+-- partTBL을 범위를 가지고 나누기
+CREATE TABLE partTBL (
+  userID  CHAR(8) NOT NULL, -- Primary Key로 지정하면 안됨
+  name  VARCHAR(10) NOT NULL,
+  birthYear INT  NOT NULL,
+  addr CHAR(2) NOT NULL)
+PARTITION BY RANGE(birthYear) (
+    PARTITION part1 VALUES LESS THAN (1971),
+    PARTITION part2 VALUES LESS THAN (1979),
+    PARTITION part3 VALUES LESS THAN MAXVALUE
+);
+
+-- 데이터 삽입
+INSERT INTO partTBL 
+	SELECT userID, name, birthYear, addr FROM sqlDB.userTbl;
+
+-- 조회
+SELECT * FROM partTBL;
+-- 파티션 순서대로 조회된 것을 볼 수 있음
+
+SELECT TABLE_SCHEMA, TABLE_NAME, PARTITION_NAME, PARTITION_ORDINAL_POSITION, TABLE_ROWS
+    FROM INFORMATION_SCHEMA.PARTITIONS
+    WHERE TABLE_NAME =  'parttbl';
+-- 결과: 테이블스키마, 테이블이름, 파티션이름들, 파티션순서들, 파티션테이블당 행 갯수들
+
+SELECT * FROM partTBL WHERE birthYear <= 1965 ;
+
+-- 검색 조건 조회
+EXPLAIN SELECT * FROM partTBL WHERE birthYear <= 1965;
+-- filtered를 보면 필터링된 정보를 볼 수 있음
+
+-- 파티션 분할
+ALTER TABLE partTBL 
+	REORGANIZE PARTITION part3 INTO (
+		PARTITION part3 VALUES LESS THAN (1986),
+		PARTITION part4 VALUES LESS THAN MAXVALUE
+	);
+-- 분할 적용
+OPTIMIZE TABLE partTBL;
+
+-- 나눠진 파티션 조회
+SELECT TABLE_SCHEMA, TABLE_NAME, PARTITION_NAME, PARTITION_ORDINAL_POSITION, TABLE_ROWS
+    FROM INFORMATION_SCHEMA.PARTITIONS
+    WHERE TABLE_NAME =  'parttbl';
+
+-- 파티션 합치기
+ALTER TABLE partTBL 
+	REORGANIZE PARTITION part1, part2 INTO (
+		PARTITION part12 VALUES LESS THAN (1979)
+	);
+-- 합치기 적용
+OPTIMIZE TABLE partTBL;
+
+-- 합쳐진 파티션 조회
+SELECT TABLE_SCHEMA, TABLE_NAME, PARTITION_NAME, PARTITION_ORDINAL_POSITION, TABLE_ROWS
+    FROM INFORMATION_SCHEMA.PARTITIONS
+    WHERE TABLE_NAME =  'parttbl';
+
+-- 파티션 삭제
+ALTER TABLE partTBL DROP PARTITION part12;
+-- 삭제 적용
+OPTIMIZE TABLE partTBL;
+
+-- 테이블 조회
+SELECT * FROM partTBL;
+-- 삭제하면 파티션 테이블을 날리면 지워짐
+```
+
+### 파티션 정리
+
+1. 대량의 테이블을 물리적으로 분리하기 때문에 상당히 효율적
+2. 파티션 테이블에 외래 키를 설정할 수 없음, 단독 테이블만 파티션만 가능
+3. 스토어드 프로시저, 스토어드 함수, 사용자 변수 등 파티션 함수나 식에 사용 불가
+4. 임시 테이블은 파티션 기능을 사용할 수 없음
+5. 파티션 키에는 일부함수만 사용 가능
+6. 파티션 갯수는 최대 8192개
+7. 레인지 파티션은 숫자형의 연속된 범위를 사용
+8. 리스트 파티션은 숫자형, 문자형의 연속되지 않은 하나씩 파티션 키 값을 지정
+9. 리스트 파티션에는 MAXVALUE를 사용할 수 없음, 모든 경우의 파티션 킷 값을 지정해야 함
