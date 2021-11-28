@@ -1,7 +1,12 @@
 # 이것이 MySQL이다(8.0)
 
 - 2020-11-09 (Finish Chapter01)
+<<<<<<< HEAD
 - 2021-09-15 ~ 2021-09-27 (Finish Chapter02~06)
+=======
+- 2021-09-15 ~ 17 (Finish Chapter02~04)
+- 2021-09-23 ~ 27 (Finish Chapter05~06)
+>>>>>>> 2d6c2c20dbd7259cd0e53c17f5664dd0cd82099c
 - 2021-10-22 ~ 2021-11- (Finish Chapter07~11)
 
 강의 링크 -> <https://www.youtube.com/playlist?list=PLVsNizTWUw7Hox7NMhenT-bulldCp9HP9>
@@ -88,7 +93,11 @@
 
 ## Quick Start
 
+<<<<<<< HEAD
 ### 데이터베이스, 테이블 조회
+=======
+### DB를 시작하자마자 DB와 Table 조회하기
+>>>>>>> 2d6c2c20dbd7259cd0e53c17f5664dd0cd82099c
 
 ```sql
 -- DATABASES 목록 보기
