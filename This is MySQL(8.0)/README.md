@@ -1,13 +1,8 @@
 # 이것이 MySQL이다(8.0)
 
 - 2020-11-09 (Finish Chapter01)
-<<<<<<< HEAD
 - 2021-09-15 ~ 2021-09-27 (Finish Chapter02~06)
-=======
-- 2021-09-15 ~ 17 (Finish Chapter02~04)
-- 2021-09-23 ~ 27 (Finish Chapter05~06)
->>>>>>> 2d6c2c20dbd7259cd0e53c17f5664dd0cd82099c
-- 2021-10-22 ~ 2021-11- (Finish Chapter07~11)
+- 2021-10-22 ~ 2021-12-08 (Finish Chapter07~11)
 
 강의 링크 -> <https://www.youtube.com/playlist?list=PLVsNizTWUw7Hox7NMhenT-bulldCp9HP9>
 
@@ -71,7 +66,7 @@
 - [Chapter 11 전체 텍스트검색과 파티션](./summary/Chapter11.md)
   - 11-01 전체 텍스트 검색 개념과 실습
   - 11-02 파티션 개념과 실습
-- ~~[Chapter 12 PHP 기본](./summary/Chapter12.md)~~
+- [Chapter 12 PHP 기본](./summary/Chapter12.md)
   - 12-01 웹 개발환경 구축
   - 12-02 HTML 태그, PHP 기초문법
   - 12-03 PHP 문법 및 내장 함수
@@ -93,11 +88,7 @@
 
 ## Quick Start
 
-<<<<<<< HEAD
 ### 데이터베이스, 테이블 조회
-=======
-### DB를 시작하자마자 DB와 Table 조회하기
->>>>>>> 2d6c2c20dbd7259cd0e53c17f5664dd0cd82099c
 
 ```sql
 -- DATABASES 목록 보기
@@ -175,6 +166,11 @@ SELECT * FROM usertbl;
 SELECT * FROM buytbl;
 ```
 
+### Error Code: 1175, MySQL sql_safe_updates 변수 수정
+
+```sql
+SET SQL_SAFE_UPDATES = 0;
+```
 
 ## 마지막으로
 
