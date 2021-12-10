@@ -2,7 +2,7 @@
 
 - 2020-11-09 (Finish Chapter01)
 - 2021-09-15 ~ 2021-09-27 (Finish Chapter02~06)
-- 2021-10-22 ~ 2021-12-08 (Finish Chapter07~11)
+- 2021-10-22 ~ 2021-12-10 (Finish Chapter07~15)
 
 강의 링크 -> <https://www.youtube.com/playlist?list=PLVsNizTWUw7Hox7NMhenT-bulldCp9HP9>
 
@@ -71,14 +71,14 @@
   - 12-02 HTML 태그, PHP 기초문법
   - 12-03 PHP 문법 및 내장 함수
   - 12-04 HTML과 PHP의 관계
-- ~~[Chapter 13 PHP와 MySQL 연동](./summary/Chapter13.md)~~
+- [Chapter 13 PHP와 MySQL 연동](./summary/Chapter13.md)
   - 13-01 기본 연동 방법
   - 13-02 회원 관리 시스템 구현
-- ~~[Chapter 14 공간 데이터](./summary/Chapter14.md)~~
+- [Chapter 14 공간 데이터](./summary/Chapter14.md)
   - 14-01 GIS 개념과 MySQL의 공간데이터
   - 14-02 공간 데이터 실습, 공간 함수
   - 14-03 GIS 응용 프로젝트
-- ~~[Chapter 15 파이썬과 MySQL 응용](./summary/Chapter15.md)~~
+- [Chapter 15 파이썬과 MySQL 응용](./summary/Chapter15.md)
   - 15-01 파이썬 개발 환경 구축
   - 15-02 파이썬 기초 문법
   - 15-03 리스트(배열), 문자열, map함수
