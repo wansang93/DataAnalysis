@@ -7,3 +7,7 @@
 ## 🔎 [이것이 MySQL이다(8.0)](./This%20is%20MySQL(8.0)/README.md)
 
 RDBMS의 대표인 MySQL의 운영과 기본적인 SQL을 익힙니다.
+
+## 🔎 [SQLP](./SQLP/README.md)
+
+SQLP 자격증을 따려고 공부한 내용입니다.
